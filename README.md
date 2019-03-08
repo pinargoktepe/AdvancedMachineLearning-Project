@@ -2,8 +2,8 @@
 This repository contains reports and codes for Advanced Machine Learning course project.
 
 # Group Members:
-Pinar Goktepe
-Dusan Mihajlov
+Pinar Goktepe, 
+Dusan Mihajlov, 
 Michael Baur
 
 # Project Description
