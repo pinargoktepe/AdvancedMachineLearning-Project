@@ -6,6 +6,9 @@ Pinar Goktepe,
 Dusan Mihajlov, 
 Michael Baur
 
+# Project Topic:
+Self Supervised Learning: Fashionset Classification
+
 # Project Description
 Deep neural networks need many labeled data instances to be able to provide significant results. However in many cases the number of labeled data is limited. Therefore, several methods are developed to handle labeled data availability problem. One way is to use a large labeled dataset such as ImagNet, COCO or Pascal VOC to pretrain the network and then fine tune it by target dataset. Another widely used method is upsampling meaning that increasing number of labeled data instances by shifthing, rotating or other simple data manipulation techniques. 
 
