@@ -17,6 +17,7 @@ model_save_name = 'clas'
 model_load_name = 'first'
 load = True
 save = True
+lr=0.001
 in_size = 227
 tile_size = 56
 batch_size = 32
@@ -40,12 +41,12 @@ print('Device: ' + ('gpu' if torch.cuda.is_available() else 'cpu'))
 
 model = AlexNetSelf(tile_size,in_size,selftrain=False,num_classes=num_classes)
 model = model.to(device)
-optimizer = torch.optim.Adam(model.parameters())
+optimizer = torch.optim.Adam(model.parameters(),lr=lr)
 loss_function = nn.CrossEntropyLoss()
 
 train_losses, val_losses, train_acc, val_acc = ourTrain(model, train_loader, val_loader, optimizer, loss_function, device=device,
-                     saveWeights=save, saving_path="models/model_"+model_save_name+".pth",
-                     loadWeights=load,loading_path='models/model_'+model_load_name+'.pth',
+                     saveWeights=save, saving_path="models/model_"+model_save_name,
+                     loadWeights=load,loading_path='models/model_'+model_load_name,
                         print_every=100,n_epochs=n_epochs)
 
 results = np.zeros((n_epochs,4))
@@ -53,4 +54,5 @@ results[:,0]=train_losses
 results[:,1]=val_losses
 results[:,2]=train_acc
 results[:,3]=val_acc
-np.savetxt('experiments/exp'+str(model_load_name)+'to'+str(model_save_name)+'.txt', results, fmt='%s')
+np.savetxt('experiments/exp_'+str(model_load_name)+'_to_'
+           +str(model_save_name)+'_lr='+str(lr)+'_nclasses='+str(num_classes)+'_nepochs='+str(n_epochs)+'.txt', results, fmt='%s')
