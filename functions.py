@@ -9,9 +9,12 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils
 from torchvision.transforms import RandomCrop, Resize, ToTensor, Normalize
 import matplotlib.pyplot as plt
+from tensorboardX import SummaryWriter
 
-def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, saveWeights=False, saving_path="", loadWeights=False, loading_path="", device=torch.device('cpu'), print_every=100, self_train=False,n_epochs=20):
 
+def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, saveWeights=False, saving_path="", loadWeights=False, loading_path="", device=torch.device('cpu'), print_every=100, self_train=False,n_epochs=20, logfiles=""):
+    # create summary writer for tensorboard
+    writer = SummaryWriter(logfiles)
     if loadWeights:
         model.load_state_dict(torch.load(loading_path), strict=False)
         model.to(device)
@@ -25,6 +28,8 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, saveWeights=Fal
     t1=time()
     n_it = int(len(train_loader.dataset)/train_loader.batch_size)
     n_it_val = int(len(val_loader.dataset)/val_loader.batch_size)
+
+    #Training
     for epoch in range(n_epochs):
         losses = []
         n_correct = 0
@@ -51,16 +56,20 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, saveWeights=Fal
                 n_correct += torch.sum(output.argmax(1) == labels).item()
 
         curr_loss = np.mean(np.array(losses))
+        writer.add_scalar('Train/Loss', curr_loss, epoch)
+
         print('Loss after epoch '+str(epoch+1)+'/'+str(n_epochs)+' is:  '+str(curr_loss))
         if self_train==False:
             accuracy = 100.0 * n_correct / len(train_loader.dataset)
             train_accuracies.append(accuracy)
             print('Accuracy after epoch '+str(epoch+1)+'/'+str(n_epochs)+' is:  '+str(accuracy))
+            writer.add_scalar('Train/Acc', accuracy, epoch)
         train_losses.append(curr_loss)
         losses=[]
         n_correct = 0
         t3 = time()
         print('Start validation')
+        #Validation
         with torch.no_grad():
             for iteration, (images, labels) in enumerate(val_loader):
                 images = images.to(device)
@@ -80,16 +89,19 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, saveWeights=Fal
                 if self_train == False:
                     n_correct += torch.sum(output.argmax(1) == labels).item()
         val_losses.append(np.mean(np.array(losses)))
+
+        writer.add_scalar('Val/Loss', curr_loss, epoch)
         print('Loss at validation ' + str(epoch + 1) + ' is:  ' + str(curr_loss))
         if self_train==False:
             accuracy = 100.0 * n_correct / len(val_loader.dataset)
             val_accuracies.append(accuracy)
             print('Accuracy after validation:  '+str(accuracy))
+            writer.add_scalar('Val/Acc', accuracy, epoch)
 
     if saveWeights:
         print("Model weights are saved on ", device)
         torch.save(model.state_dict(), saving_path)
-
+    writer.close()
     return train_losses, val_losses, train_accuracies, val_accuracies
 
 

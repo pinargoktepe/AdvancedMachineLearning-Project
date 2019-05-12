@@ -12,6 +12,7 @@ from alexnet import AlexNet, AlexNetSelf
 from functions import ourTrain, plotCompare
 from Datasets import SelfSupervisedDataset
 
+
 # Hyperparameters
 model_save_name = 'second'
 model_load_name = 'first'
