@@ -13,10 +13,10 @@ import matplotlib.pyplot as plt
 def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, saveWeights=False, saving_path="", loadWeights=False, loading_path="", device=torch.device('cpu'), print_every=100, self_train=False,n_epochs=20):
 
     if loadWeights:
-        model.load_state_dict(torch.load(loading_path), strict=False)
+        model.load_state_dict(torch.load(loading_path+'.pth'), strict=False)
         model.to(device)
         print("model weights are loaded from ", device)
-
+    best_loss = 999999999999999999999
     model.train()
     train_losses = []
     val_losses = []
@@ -26,6 +26,7 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, saveWeights=Fal
     n_it = int(len(train_loader.dataset)/train_loader.batch_size)
     n_it_val = int(len(val_loader.dataset)/val_loader.batch_size)
     for epoch in range(n_epochs):
+        t5 = time()
         losses = []
         n_correct = 0
         for iteration, (images, labels) in enumerate(train_loader):
@@ -43,7 +44,7 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, saveWeights=Fal
             if iteration % print_every == 0:
 
                 t2=time()
-                est_ep = (t2-t1)*(n_it-iteration)/(iteration+1)
+                est_ep = (t2-t5)*(n_it-iteration)/(iteration+1)
                 est_end = (t2-t1)*(n_it*n_epochs-iteration-epoch*n_it+(n_epochs-epoch)*n_it_val)/(iteration+1+epoch*n_it+epoch*n_it_val)
                 print("Iteration: " + str(iteration) + " of " + str(n_it) + "   time until end of epoch: " + strftime("%H:%M:%S", gmtime(est_ep)) + '   end of traning in ' + strftime("%H:%M:%S", gmtime(est_end)))
 
@@ -61,6 +62,7 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, saveWeights=Fal
         n_correct = 0
         t3 = time()
         print('Start validation')
+
         with torch.no_grad():
             for iteration, (images, labels) in enumerate(val_loader):
                 images = images.to(device)
@@ -80,6 +82,10 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, saveWeights=Fal
                 if self_train == False:
                     n_correct += torch.sum(output.argmax(1) == labels).item()
         val_losses.append(np.mean(np.array(losses)))
+        if val_losses[-1]<best_loss and saveWeights:
+            best_loss=val_losses[-1]
+            print("Model weights are saved on (autosave)", device)
+            torch.save(model.state_dict(), saving_path+'_autosave_'+'.pth')
         print('Loss at validation ' + str(epoch + 1) + ' is:  ' + str(curr_loss))
         if self_train==False:
             accuracy = 100.0 * n_correct / len(val_loader.dataset)
@@ -88,7 +94,7 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, saveWeights=Fal
 
     if saveWeights:
         print("Model weights are saved on ", device)
-        torch.save(model.state_dict(), saving_path)
+        torch.save(model.state_dict(), saving_path+'.pth')
 
     return train_losses, val_losses, train_accuracies, val_accuracies
 

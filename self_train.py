@@ -13,21 +13,21 @@ from functions import ourTrain, plotCompare
 from Datasets import SelfSupervisedDataset
 
 # Hyperparameters
-model_save_name = 'second'
+model_save_name = 'second_v3'
 model_load_name = 'first'
 save = True
 load = False
-lr = 0.003
+lr = 0.0003
 in_size = 227
-tile_size = 56
+tile_size = 75
 batch_size = 32
-n_epochs = 10
-num_classes = 48
+num_classes=48
 n_epochs = 30
+##############
 
 k,l = divmod(in_size,tile_size)
 if l != 0:
-    print("Tile_size is not valid")
+    print("Warning: Tile_size is not valid")
 
 ## Just to check how it works
 dataset_f_test = SelfSupervisedDataset("dataset1/test",in_size=in_size,tile_size=tile_size,w_norm=False)
@@ -47,18 +47,19 @@ test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True, num_
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print('Device: ' + ('gpu' if torch.cuda.is_available() else 'cpu'))
-
+device= torch.device('cuda')
 model = AlexNetSelf(tile_size,in_size,selftrain=True,num_classes=num_classes)
 model = model.to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 loss_function = nn.MSELoss()
 
 train_losses, val_losses, train_acc, val_acc = ourTrain(model, train_loader, val_loader, optimizer, loss_function, device=device,
-                            saveWeights=save,saving_path='models/model_'+model_save_name+'.pth',
-                            loadWeights=load,loading_path='models/model_'+model_load_name+'.pth',
+                            saveWeights=save,saving_path='models/model_'+model_save_name,
+                            loadWeights=load,loading_path='models/model_'+model_load_name,
                             print_every=100, self_train=True, n_epochs=n_epochs)
 results = np.zeros((n_epochs,2))
 results[:,0]=train_losses
 results[:,1]=val_losses
-np.savetxt('experiments/exp'+str(model_load_name)+'to'+str(model_save_name)+'.txt', results, fmt='%s')
+np.savetxt('experiments/exp_'+str(model_load_name)+'_to_'
+           +str(model_save_name)+'_lr='+str(lr)+'_ntiles='+str(int(in_size/tile_size))+'_nepochs='+str(n_epochs)+'.txt', results, fmt='%s')
 
