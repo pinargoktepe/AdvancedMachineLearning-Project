@@ -1,10 +1,15 @@
 split_factor = 0.7
 
 import numpy as np
-evalpath = 'Eval/list_eval_partition.txt'
-labelpath = 'Anno/list_category_img.txt'
-evaltxt = np.loadtxt(evalpath, dtype='object')
-labels = np.loadtxt(labelpath, dtype='object')
+folder_name = "/var/tmp/st9_data/"
+evalpath = folder_name + 'Eval/list_eval_partition.txt'
+labelpath = folder_name + 'Anno/list_category_img.txt'
+evaltxt = np.loadtxt(evalpath, skiprows=2, dtype='object')
+labels = np.loadtxt(labelpath, skiprows=2, dtype='object')
+
+evaltxt[:,0] = folder_name + evaltxt[:,0]
+labels[:,0] = folder_name + labels[:,0]
+
 print(labels.shape)
 
 import os
@@ -26,13 +31,13 @@ for i in range(n):
     
     m_label[int(labels[i,1])] = m_label[int(labels[i,1])] + 1
     if (m_label[int(labels[i,1])] <= n_label[int(labels[i,1])] * split_factor):
-        target = 'dataset1/' + evaltxt[i,1] + '/' + str(i+1)+'.jpg'
+        target = folder_name + 'dataset1/' + evaltxt[i,1] + '/' + str(i+1)+'.jpg'
     else:
-        target = 'dataset2/' + evaltxt[i,1] + '/' + labels[i,1] + '/' + str(i+1)+'.jpg'
+        target = folder_name + 'dataset2/' + evaltxt[i,1] + '/' + labels[i,1] + '/' + str(i+1)+'.jpg'
     os.makedirs(os.path.dirname(target), exist_ok=True)
     copyfile(evaltxt[i,0], target)
     filepaths[i] = target
     if (i%1000==0):
         print(str(i))
-np.savetxt('filepaths.txt', filepaths, fmt='%s')
+np.savetxt(folder_name+'filepaths.txt', filepaths, fmt='%s')
 print('done!')
