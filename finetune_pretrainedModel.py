@@ -13,12 +13,12 @@ model_save_name = 'pt_class'
 model_load_name = 'pt_first'
 load = False
 save = True
-lr=0.001
+lr=0.005
 in_size = 227
 batch_size = 32
 n_epochs = 10
 num_classes = 48
-folder_name = "/var/tmp/"
+folder_name = "/var/tmp/st9_data/"
 #Dataset for target task
 train_dataset = ClassesDataset(folder_name+"dataset2/train/",in_size=in_size, num_classes=num_classes)
 val_dataset = ClassesDataset(folder_name+"dataset2/val",in_size=in_size, num_classes=num_classes)

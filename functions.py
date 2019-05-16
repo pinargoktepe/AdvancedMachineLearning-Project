@@ -32,11 +32,11 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
     n_it = int(len(train_loader.dataset)/train_loader.batch_size)
     n_it_val = int(len(val_loader.dataset)/val_loader.batch_size)
 
-    #Training
     for epoch in range(n_epochs):
         t5 = time()
         losses = []
         n_correct = 0
+        # Training
         for iteration, (images, labels) in enumerate(train_loader):
             images = images.to(device)
             labels = labels.to(device)
