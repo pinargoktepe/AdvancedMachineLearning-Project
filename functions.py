@@ -23,7 +23,7 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
         model.to(device)
         print("model weights are loaded from ", device)
     best_loss = 999999999999999999999
-    model.train()
+    #model.train()
     train_losses = []
     val_losses = []
     train_accuracies = []
@@ -37,6 +37,7 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
         losses = []
         n_correct = 0
         # Training
+        model.train()
         for iteration, (images, labels) in enumerate(train_loader):
             images = images.to(device)
             labels = labels.to(device)
@@ -73,7 +74,7 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
         n_correct = 0
         t3 = time()
         print('Start validation')
-
+        model.eval()
         #Validation
         with torch.no_grad():
             for iteration, (images, labels) in enumerate(val_loader):
