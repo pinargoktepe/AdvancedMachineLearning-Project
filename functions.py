@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 #from tensorboardX import SummaryWriter
 
 
-def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, saveWeights=False, saving_path="", loadWeights=False, loading_path="", device=torch.device('cpu'), print_every=100, self_train=False,n_epochs=20, logfiles="", folder_name=''):
+def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, saveWeights=False, saving_path="", loadWeights=False, loading_path="", device=torch.device('cpu'), print_every=100, self_train=False, n_epochs=20, logfiles="", folder_name=''):
     loading_path = folder_name+loading_path
     saving_path = folder_name+saving_path
     logfiles = folder_name+logfiles
@@ -108,6 +108,7 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, saveWeights=Fal
             val_accuracies.append(accuracy)
             print('Accuracy after validation:  '+str(accuracy))
             #writer.add_scalar('Val/Acc', accuracy, epoch)
+        scheduler.step()
 
     if saveWeights:
         print("Model weights are saved on ", device)

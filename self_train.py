@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from alexnet import AlexNet, AlexNetSelf
 from functions import ourTrain, plotCompare
 from Datasets import SelfSupervisedDataset
+from torch.optim.lr_scheduler import StepLR
 
 folder_name = "/var/tmp/st9_data/"
 # Hyperparameters
@@ -53,11 +54,12 @@ model = AlexNetSelf(tile_size,in_size,selftrain=True,num_classes=num_classes)
 model = model.to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 loss_function = nn.MSELoss()
+scheduler = StepLR(optimizer, step_size=10, gamma=0.1)
 
-train_losses, val_losses, train_acc, val_acc = ourTrain(model, train_loader, val_loader, optimizer, loss_function, device=device,
-                            saveWeights=save,saving_path=folder_name+'models/model_'+model_save_name,
-                            loadWeights=load,loading_path=folder_name+'models/model_'+model_load_name,
-                            print_every=100, self_train=True, n_epochs=n_epochs)
+train_losses, val_losses, train_acc, val_acc = ourTrain(model, train_loader, val_loader, optimizer, loss_function, scheduler,
+                                                        device=device, saveWeights=save, saving_path=folder_name+'models/model_'+model_save_name,
+                                                        loadWeights=load,loading_path=folder_name+'models/model_'+model_load_name,print_every=100,
+                                                        self_train=True, n_epochs=n_epochs)
 results = np.zeros((n_epochs,2))
 results[:,0]=train_losses
 results[:,1]=val_losses

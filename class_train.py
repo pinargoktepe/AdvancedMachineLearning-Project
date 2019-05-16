@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from alexnet import AlexNet, AlexNetSelf
 from functions import ourTrain
 from Datasets import ClassesDataset
+from torch.optim.lr_scheduler import StepLR
 
 # Hyperparameters
 model_save_name = 'clas'
@@ -43,11 +44,12 @@ model = AlexNetSelf(tile_size,in_size,selftrain=False,num_classes=num_classes)
 model = model.to(device)
 optimizer = torch.optim.Adam(model.parameters(),lr=lr)
 loss_function = nn.CrossEntropyLoss()
+scheduler = StepLR(optimizer, step_size=7, gamma=0.1)
 
-train_losses, val_losses, train_acc, val_acc = ourTrain(model, train_loader, val_loader, optimizer, loss_function, device=device,
-                     saveWeights=save, saving_path="models/model_"+model_save_name,
-                     loadWeights=load,loading_path='models/model_'+model_load_name,
-                        print_every=100,n_epochs=n_epochs)
+train_losses, val_losses, train_acc, val_acc = ourTrain(model, train_loader, val_loader, optimizer, loss_function, scheduler,
+                                                        device=device, saveWeights=save, saving_path="models/model_"+model_save_name,
+                                                        loadWeights=load, loading_path='models/model_'+model_load_name,
+                                                        print_every=100, n_epochs=n_epochs)
 
 results = np.zeros((n_epochs,4))
 results[:,0]=train_losses
