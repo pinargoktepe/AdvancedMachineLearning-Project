@@ -1,7 +1,7 @@
 split_factor = 0.7
 
 import numpy as np
-folder_name = "/var/tmp/st9_data/"
+folder_name = "../DeepFashion/"
 evalpath = folder_name + 'Eval/list_eval_partition.txt'
 labelpath = folder_name + 'Anno/list_category_img.txt'
 evaltxt = np.loadtxt(evalpath, skiprows=2, dtype='object')

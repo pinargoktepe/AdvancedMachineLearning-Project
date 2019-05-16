@@ -9,12 +9,15 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils
 from torchvision.transforms import RandomCrop, Resize, ToTensor, Normalize
 import matplotlib.pyplot as plt
-#from tensorboardX import SummaryWriter
+from tensorboardX import SummaryWriter
 
 
-def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, saveWeights=False, saving_path="", loadWeights=False, loading_path="", device=torch.device('cpu'), print_every=100, self_train=False,n_epochs=20, logfiles=""):
+def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, saveWeights=False, saving_path="", loadWeights=False, loading_path="", device=torch.device('cpu'), print_every=100, self_train=False,n_epochs=20, logfiles="", folder_name=''):
+    loading_path = folder_name+loading_path
+    saving_path = folder_name+saving_path
+    logfiles = folder_name+logfiles
     # create summary writer for tensorboard
-    #writer = SummaryWriter(logfiles)
+    writer = SummaryWriter(logfiles)
     if loadWeights:
         model.load_state_dict(torch.load(loading_path+'.pth'), strict=False)
         model.to(device)
@@ -57,7 +60,7 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, saveWeights=Fal
                 n_correct += torch.sum(output.argmax(1) == labels).item()
 
         curr_loss = np.mean(np.array(losses))
-        #writer.add_scalar('Train/Loss', curr_loss, epoch)
+        writer.add_scalar('Train/Loss', curr_loss, epoch)
 
         print('Loss after epoch '+str(epoch+1)+'/'+str(n_epochs)+' is:  '+str(curr_loss))
         if self_train==False:
@@ -92,7 +95,7 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, saveWeights=Fal
                     n_correct += torch.sum(output.argmax(1) == labels).item()
         curr_val_loss = np.mean(np.array(losses))
         val_losses.append(curr_val_loss)
-        #writer.add_scalar('Val/Loss', curr_val_loss, epoch)
+        writer.add_scalar('Val/Loss', curr_val_loss, epoch)
 
         if val_losses[-1]<best_loss and saveWeights:
             best_loss=val_losses[-1]
@@ -104,13 +107,13 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, saveWeights=Fal
             accuracy = 100.0 * n_correct / len(val_loader.dataset)
             val_accuracies.append(accuracy)
             print('Accuracy after validation:  '+str(accuracy))
-            #writer.add_scalar('Val/Acc', accuracy, epoch)
+            writer.add_scalar('Val/Acc', accuracy, epoch)
 
     if saveWeights:
         print("Model weights are saved on ", device)
         torch.save(model.state_dict(), saving_path+'.pth')
 
-    #writer.close()
+    writer.close()
     return train_losses, val_losses, train_accuracies, val_accuracies
 
 
