@@ -8,8 +8,8 @@ from torchvision import models
 from functions import ourTrain
 
 # Hyperparameters
-model_save_name = 'clas'
-model_load_name = 'first'
+model_save_name = 'pt_class'
+model_load_name = 'pt_first'
 load = False
 save = True
 lr=0.001
@@ -17,7 +17,7 @@ in_size = 227
 batch_size = 32
 n_epochs = 10
 num_classes = 48
-folder_name = "../DeepFashion/"
+folder_name = "/var/tmp/"
 #Dataset for target task
 train_dataset = ClassesDataset(folder_name+"dataset2/train/",in_size=in_size, num_classes=num_classes)
 val_dataset = ClassesDataset(folder_name+"dataset2/val",in_size=in_size, num_classes=num_classes)
@@ -49,9 +49,9 @@ optimizer = torch.optim.Adam(model.parameters(),lr=lr)
 loss_function = nn.CrossEntropyLoss()
 
 train_losses, val_losses, train_acc, val_acc = ourTrain(model, train_loader, val_loader, optimizer, loss_function, device=device,
-                     saveWeights=save, saving_path=folder_name+"models/model_"+model_save_name,
-                     loadWeights=load,loading_path=folder_name+'models/model_'+model_load_name,
-                        print_every=100,n_epochs=n_epochs)
+                     saveWeights=save, saving_path="models/model_"+model_save_name,
+                     loadWeights=load,loading_path='models/model_'+model_load_name,
+                        print_every=100,n_epochs=n_epochs, folder_name=folder_name)
 
 results = np.zeros((n_epochs,4))
 results[:,0]=train_losses
