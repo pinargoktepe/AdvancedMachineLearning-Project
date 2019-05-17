@@ -27,7 +27,6 @@ class SelfSupervisedDataset(Dataset):
     def __getitem__(self, idx):
         image = imread(self.images[idx])
         w, h = image.shape[:2]
-        print("w: ", w, " h: ", h)
         if w<h:
             minim = w
         else:
@@ -75,10 +74,10 @@ class ClassesDataset(Dataset):
         self.num_classes = num_classes
         for r, d, f in os.walk(root_dir):
             for dir in d:
-                curr_dir = os.path.join(root_dir,dir)
+                curr_dir = os.path.join(root_dir, dir)
                 for r2, d2, f2 in os.walk(curr_dir):
                     for file in f2:
-                        self.images.append(os.path.join(curr_dir,file))
+                        self.images.append(os.path.join(curr_dir, file))
 
     def __len__(self):
         return len(self.images)
@@ -86,7 +85,7 @@ class ClassesDataset(Dataset):
     def __getitem__(self, idx):
         image = imread(self.images[idx])
         w, h = image.shape[:2]
-        if w<h:
+        if w < h:
             minim = w
         else:
             minim = h
@@ -99,8 +98,8 @@ class ClassesDataset(Dataset):
         image = Image.fromarray(image)
         img = transf(image)
         label = os.path.basename(os.path.dirname(self.images[idx]))
-        label = int(label)-1
-        labels = np.zeros((self.num_classes,1))
+        label = int(label) - 1
+        labels = np.zeros((self.num_classes, 1))
         labels[label] = 1
         return img, label
 
