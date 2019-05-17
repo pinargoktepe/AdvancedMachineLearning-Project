@@ -61,6 +61,7 @@ class SelfSupervisedDataset(Dataset):
             #label1[i] = ko
             label[i*2] = ko
             label[i*2+1] = lo
+            label = 2*label/(self.in_size/self.tile_size)-1
         return new_img, label
 
 
