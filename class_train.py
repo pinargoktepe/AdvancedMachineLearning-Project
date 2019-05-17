@@ -12,7 +12,7 @@ from alexnet import AlexNet, AlexNetSelf
 from functions import ourTrain
 from Datasets import ClassesDataset
 from torch.optim.lr_scheduler import StepLR
-folder_name = "/var/tmp/st9_data/"
+folder_name = "../Desktop/DeepFashion/"
 # Hyperparameters
 model_save_name = 'clas'
 model_load_name = 'first'
@@ -29,9 +29,9 @@ num_classes = 48
 train_dataset = ClassesDataset(folder_name+"dataset2/train/",in_size=in_size, num_classes=num_classes)
 val_dataset = ClassesDataset(folder_name+"dataset2/val",in_size=in_size, num_classes=num_classes)
 test_dataset = ClassesDataset(folder_name+"dataset2/test",in_size=in_size, num_classes=num_classes)
-print(len(train_dataset))
-print(len(val_dataset))
-print(len(test_dataset))
+print("len train dataset: ", len(train_dataset))
+print("len val dataset: ", len(val_dataset))
+print("len test dataset: ", len(test_dataset))
 
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
 val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=4)

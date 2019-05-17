@@ -27,6 +27,7 @@ class SelfSupervisedDataset(Dataset):
     def __getitem__(self, idx):
         image = imread(self.images[idx])
         w, h = image.shape[:2]
+        print("w: ", w, " h: ", h)
         if w<h:
             minim = w
         else:
