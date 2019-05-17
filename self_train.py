@@ -19,10 +19,10 @@ model_save_name = folder_name + 'second_v3'
 model_load_name = folder_name + 'first'
 save = True
 load = False
-lr = 0.0003
+lr = 0.0001
 in_size = 227
 tile_size = 75
-batch_size = 32
+batch_size = 64
 num_classes=48
 n_epochs = 30
 ##############
@@ -54,12 +54,12 @@ model = AlexNetSelf(tile_size,in_size,selftrain=True,num_classes=num_classes)
 model = model.to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 loss_function = nn.MSELoss()
-scheduler = StepLR(optimizer, step_size=5, gamma=0.1, weight_decay=0.001)
+scheduler = StepLR(optimizer, step_size=10, gamma=0.3, weight_decay=0.001)
 
 train_losses, val_losses, train_acc, val_acc = ourTrain(model, train_loader, val_loader, optimizer, loss_function, scheduler,
-                                                        device=device, saveWeights=save, saving_path=folder_name+'models/model_'+model_save_name,
-                                                        loadWeights=load,loading_path=folder_name+'models/model_'+model_load_name,print_every=100,
-                                                        self_train=True, n_epochs=n_epochs)
+                                                        device=device, saveWeights=save, saving_path='models/model_'+model_save_name,
+                                                        loadWeights=load,loading_path='models/model_'+model_load_name,print_every=100,
+                                                        self_train=True, n_epochs=n_epochs, folder_name=folder_name)
 results = np.zeros((n_epochs,2))
 results[:,0]=train_losses
 results[:,1]=val_losses
