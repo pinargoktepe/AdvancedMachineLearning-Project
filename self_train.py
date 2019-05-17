@@ -52,9 +52,9 @@ print('Device: ' + ('gpu' if torch.cuda.is_available() else 'cpu'))
 device= torch.device('cuda')
 model = AlexNetSelf(tile_size,in_size,selftrain=True,num_classes=num_classes)
 model = model.to(device)
-optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=0.001)
 loss_function = nn.MSELoss()
-scheduler = StepLR(optimizer, step_size=10, gamma=0.3, weight_decay=0.001)
+scheduler = StepLR(optimizer, step_size=10, gamma=0.3)
 
 train_losses, val_losses, train_acc, val_acc = ourTrain(model, train_loader, val_loader, optimizer, loss_function, scheduler,
                                                         device=device, saveWeights=save, saving_path='models/model_'+model_save_name,
