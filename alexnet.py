@@ -89,7 +89,7 @@ class AlexNetSelf(nn.Module):
         return x
     
     
-    class AlexNetSelf_deep(nn.Module):
+class AlexNetSelf_deep(nn.Module):
 
     def __init__(self, tile_size,in_size,selftrain, num_classes):
         super(AlexNetSelf, self).__init__()

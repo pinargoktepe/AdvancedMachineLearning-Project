@@ -54,7 +54,7 @@ model = AlexNetSelf(tile_size,in_size,selftrain=True,num_classes=num_classes)
 model = model.to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 loss_function = nn.MSELoss()
-scheduler = StepLR(optimizer, step_size=10, gamma=0.1)
+scheduler = StepLR(optimizer, step_size=5, gamma=0.1, weight_decay=0.001)
 
 train_losses, val_losses, train_acc, val_acc = ourTrain(model, train_loader, val_loader, optimizer, loss_function, scheduler,
                                                         device=device, saveWeights=save, saving_path=folder_name+'models/model_'+model_save_name,

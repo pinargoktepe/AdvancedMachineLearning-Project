@@ -44,7 +44,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print('Device: ' + ('gpu' if torch.cuda.is_available() else 'cpu'))
 model = model.to(device)
 
-optimizer = torch.optim.Adam(model.parameters(),lr=lr)
+optimizer = torch.optim.Adam(model.parameters(),lr=lr,weight_decay=0.001)
 loss_function = nn.CrossEntropyLoss()
 scheduler = StepLR(optimizer, step_size=7, gamma=0.1)
 
