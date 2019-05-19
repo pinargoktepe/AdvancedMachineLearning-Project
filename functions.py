@@ -61,7 +61,7 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
                 n_correct_1 += torch.sum(output.argmax(1) == labels).item()
                 top3_probs, top3_labs = torch.topk(output, 3)
                 top5_probs, top5_labs = torch.topk(output, 5)
-                print(top5_labs)
+                
                 for i in range(len(labels)):
                     l = labels[i].item()
                     # print("l: ", l)
@@ -115,7 +115,7 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
                     n_correct_1 += torch.sum(output.argmax(1) == labels).item()
                     top3_probs, top3_labs = torch.topk(output, 3)
                     top5_probs, top5_labs = torch.topk(output, 5)
-                    print(top5_labs)
+
                     for i in range(len(labels)):
                         l = labels[i].item()
                         # print("l: ", l)
