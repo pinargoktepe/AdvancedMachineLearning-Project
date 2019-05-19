@@ -101,5 +101,5 @@ class ClassesDataset(Dataset):
         label = int(label) - 1
         labels = np.zeros((self.num_classes, 1))
         labels[label] = 1
-        return img, label
+        return img, label, idx
 

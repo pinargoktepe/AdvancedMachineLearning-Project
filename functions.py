@@ -31,14 +31,15 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
     t1=time()
     n_it = int(len(train_loader.dataset)/train_loader.batch_size)
     n_it_val = int(len(val_loader.dataset)/val_loader.batch_size)
-
+    final_prediction_train = np.zeros((len(train_loader),3))
+    final_prediction_val = np.zeros((len(val_loader), 3))
     for epoch in range(n_epochs):
         t5 = time()
         losses = []
         n_correct_1, n_correct_3, n_correct_5 = 0, 0, 0
         # Training
         model.train()
-        for iteration, (images, labels) in enumerate(train_loader):
+        for iteration, (images, labels, idx) in enumerate(train_loader):
             images = images.to(device)
             labels = labels.to(device)
             output = model(images)
@@ -59,9 +60,9 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
 
             if self_train==False:
                 n_correct_1 += torch.sum(output.argmax(1) == labels).item()
-                top3_probs, top3_labs = torch.topk(output, 3)
-                top5_probs, top5_labs = torch.topk(output, 5)
-                
+                top3_probs, top3_labs = torch.topk(output, 2)
+                top5_probs, top5_labs = torch.topk(output, 2)
+
                 for i in range(len(labels)):
                     l = labels[i].item()
                     # print("l: ", l)
@@ -69,6 +70,13 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
                         n_correct_3 += 1
                     if l in top5_labs[i]:
                         n_correct_5 += 1
+
+                # Save the predictions of last epoch
+                if epoch == n_epochs - 1:
+                    final_prediction_train[:, 0] = idx
+                    final_prediction_train[:, 1] = labels
+                    final_prediction_train[:, 2] = output.argmax(1)
+                    np.savetxt(saving_path+'_final_train_res.txt', final_prediction_val, fmt='%s')
 
         curr_loss = np.mean(np.array(losses))
         #writer.add_scalar('Train/Loss', curr_loss, epoch)
@@ -96,7 +104,7 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
         model.eval()
         #Validation
         with torch.no_grad():
-            for iteration, (images, labels) in enumerate(val_loader):
+            for iteration, (images, labels, idx) in enumerate(val_loader):
                 images = images.to(device)
                 labels = labels.to(device)
                 output = model(images)
@@ -113,8 +121,8 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
                         "%H:%M:%S", gmtime(est_ep)))
                 if self_train == False:
                     n_correct_1 += torch.sum(output.argmax(1) == labels).item()
-                    top3_probs, top3_labs = torch.topk(output, 3)
-                    top5_probs, top5_labs = torch.topk(output, 5)
+                    top3_probs, top3_labs = torch.topk(output, 2)
+                    top5_probs, top5_labs = torch.topk(output, 2)
 
                     for i in range(len(labels)):
                         l = labels[i].item()
@@ -123,6 +131,15 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
                             n_correct_3 += 1
                         if l in top5_labs[i]:
                             n_correct_5 += 1
+
+                    # Save the predictions of last epoch
+                    if epoch == n_epochs - 1:
+                        final_prediction_val[:, 0] = idx
+                        final_prediction_val[:, 1] = labels
+                        final_prediction_val[:, 2] = output.argmax(1)
+
+                        np.savetxt(saving_path+'_final_val_res.txt', final_prediction_val, fmt='%s')
+
         curr_val_loss = np.mean(np.array(losses))
         val_losses.append(curr_val_loss)
         #writer.add_scalar('Val/Loss', curr_val_loss, epoch)
