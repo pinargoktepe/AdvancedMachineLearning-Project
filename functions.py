@@ -31,17 +31,22 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
     t1=time()
     n_it = int(len(train_loader.dataset)/train_loader.batch_size)
     n_it_val = int(len(val_loader.dataset)/val_loader.batch_size)
-    final_prediction_train = np.zeros((len(train_loader),3))
-    final_prediction_val = np.zeros((len(val_loader), 3))
+
+    final_prediction_train = np.zeros((len(train_loader.dataset),3))
+    final_prediction_val = np.zeros((len(val_loader.dataset), 3))
+
     for epoch in range(n_epochs):
         t5 = time()
         losses = []
         n_correct_1, n_correct_3, n_correct_5 = 0, 0, 0
         # Training
         model.train()
+
         for iteration, (images, labels, idx) in enumerate(train_loader):
+
             images = images.to(device)
             labels = labels.to(device)
+            idx = idx.to(device)
             output = model(images)
             optimizer.zero_grad()
             if self_train:
@@ -73,11 +78,17 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
 
                 # Save the predictions of last epoch
                 if epoch == n_epochs - 1:
-                    final_prediction_train[:, 0] = idx
-                    final_prediction_train[:, 1] = labels
-                    final_prediction_train[:, 2] = output.argmax(1)
-                    np.savetxt(saving_path+'_final_train_res.txt', final_prediction_val, fmt='%s')
+                    first_ind = iteration*train_loader.batch_size
+                    if len(train_loader.dataset)-first_ind < train_loader.batch_size:
+                        last_ind = len(train_loader.dataset)
+                    else:
+                        last_ind = iteration*train_loader.batch_size + train_loader.batch_size
 
+                    final_prediction_train[first_ind:last_ind, 0] = idx.tolist()
+                    final_prediction_train[first_ind:last_ind, 1] = labels.tolist()
+                    final_prediction_train[first_ind:last_ind, 2] = output.argmax(1).tolist()
+
+        np.savetxt(saving_path + '_final_train_res.txt', final_prediction_train, fmt='%s')
         curr_loss = np.mean(np.array(losses))
         #writer.add_scalar('Train/Loss', curr_loss, epoch)
 
@@ -107,6 +118,7 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
             for iteration, (images, labels, idx) in enumerate(val_loader):
                 images = images.to(device)
                 labels = labels.to(device)
+                idx = idx.to(device)
                 output = model(images)
                 optimizer.zero_grad()
                 if self_train:
@@ -134,11 +146,18 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
 
                     # Save the predictions of last epoch
                     if epoch == n_epochs - 1:
-                        final_prediction_val[:, 0] = idx
-                        final_prediction_val[:, 1] = labels
-                        final_prediction_val[:, 2] = output.argmax(1)
 
-                        np.savetxt(saving_path+'_final_val_res.txt', final_prediction_val, fmt='%s')
+                        first_ind = iteration * val_loader.batch_size
+                        if len(val_loader.dataset) - first_ind < val_loader.batch_size:
+                            last_ind = len(val_loader.dataset)
+                        else:
+                            last_ind = iteration * val_loader.batch_size + val_loader.batch_size
+
+                        final_prediction_val[first_ind:last_ind, 0] = idx.tolist()
+                        final_prediction_val[first_ind:last_ind, 0] = labels.tolist()
+                        final_prediction_val[first_ind:last_ind, 1] = output.argmax(1).tolist()
+
+            np.savetxt(saving_path+'_final_val_res.txt', final_prediction_val, fmt='%s')
 
         curr_val_loss = np.mean(np.array(losses))
         val_losses.append(curr_val_loss)
