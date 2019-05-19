@@ -59,20 +59,15 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
 
             if self_train==False:
                 n_correct_1 += torch.sum(output.argmax(1) == labels).item()
-                prediction_top_3 = np.argpartition(output.detach(), -3, axis=1)[:-3]
-                prediction_top_5 = np.argpartition(output.detach(), -5, axis=1)[:-5]
-                #print("top-3 : ", prediction_top_3)
-                #print(len(prediction_top_3))
-                #print("top-5 : ", prediction_top_5)
-                #print(len(prediction_top_5))
-                #print("labels: ", labels)
-                #print(len(labels))
+                top3_probs, top3_labs = torch.topk(output, 3)
+                top5_probs, top5_labs = torch.topk(output, 5)
+                print(top5_labs)
                 for i in range(len(labels)):
                     l = labels[i].item()
-                    #print("l: ", l)
-                    if l in prediction_top_3[i]:
+                    # print("l: ", l)
+                    if l in top3_labs[i]:
                         n_correct_3 += 1
-                    if l in prediction_top_5[i]:
+                    if l in top5_labs[i]:
                         n_correct_5 += 1
 
         curr_loss = np.mean(np.array(losses))
@@ -118,22 +113,16 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
                         "%H:%M:%S", gmtime(est_ep)))
                 if self_train == False:
                     n_correct_1 += torch.sum(output.argmax(1) == labels).item()
-                    prediction_top_3 = np.argpartition(output.detach(), -3, axis=1)[:-3]
-                    prediction_top_5 = np.argpartition(output.detach(), -5, axis=1)[:-5]
-                    # print("top-3 : ", prediction_top_3)
-                    # print(len(prediction_top_3))
-                    # print("top-5 : ", prediction_top_5)
-                    # print(len(prediction_top_5))
-                    # print("labels: ", labels)
-                    # print(len(labels))
+                    top3_probs, top3_labs = torch.topk(output, 3)
+                    top5_probs, top5_labs = torch.topk(output, 5)
+                    print(top5_labs)
                     for i in range(len(labels)):
                         l = labels[i].item()
                         # print("l: ", l)
-                        if l in prediction_top_3[i]:
+                        if l in top3_labs[i]:
                             n_correct_3 += 1
-                        if l in prediction_top_5[i]:
+                        if l in top5_labs[i]:
                             n_correct_5 += 1
-
         curr_val_loss = np.mean(np.array(losses))
         val_losses.append(curr_val_loss)
         #writer.add_scalar('Val/Loss', curr_val_loss, epoch)
