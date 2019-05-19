@@ -24,6 +24,8 @@ tile_size = 56
 batch_size = 32
 n_epochs = 10
 num_classes = 48
+step_size = 5
+gamma = 0.3
 ########
 
 train_dataset = ClassesDataset(folder_name+"dataset2/train/",in_size=in_size, num_classes=num_classes)
@@ -44,7 +46,7 @@ model = AlexNetSelf(tile_size,in_size,selftrain=False,num_classes=num_classes)
 model = model.to(device)
 optimizer = torch.optim.Adam(model.parameters(),lr=lr,weight_decay=0.001)
 loss_function = nn.CrossEntropyLoss()
-scheduler = StepLR(optimizer, step_size=7, gamma=0.1)
+scheduler = StepLR(optimizer, step_size=step_size, gamma=gamma)
 
 train_losses, val_losses, train_accuracies_1, train_accuracies_3, train_accuracies_5, val_accuracies_1, \
 val_accuracies_3, val_accuracies_5 = ourTrain(model, train_loader, val_loader, optimizer, loss_function, scheduler,
@@ -53,7 +55,7 @@ val_accuracies_3, val_accuracies_5 = ourTrain(model, train_loader, val_loader, o
                                                         print_every=100, n_epochs=n_epochs, folder_name=folder_name)
 
 results = np.zeros((n_epochs,8))
-results[:,0]=train_losses[:]
+results[:,0]=train_losses
 results[:,1]=val_losses
 results[:,2]=train_accuracies_1
 results[:,3]=train_accuracies_3
@@ -63,4 +65,4 @@ results[:,6]=val_accuracies_3
 results[:,7]=val_accuracies_5
 
 np.savetxt(folder_name+'experiments/exp_'+str(model_load_name)+'_to_'
-           +str(model_save_name)+'_lr='+str(lr)+'_nclasses='+str(num_classes)+'_nepochs='+str(n_epochs)+'.txt', results, fmt='%s')
+           +str(model_save_name)+'_lr='+str(lr)+'_step='+str(step_size)+'_gamma='+str(gamma)+'_nclasses='+str(num_classes)+'_nepochs='+str(n_epochs)+'.txt', results, fmt='%s')
