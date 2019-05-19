@@ -8,21 +8,21 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils
 from torchvision.transforms import RandomCrop, Resize, ToTensor, Normalize
 import matplotlib.pyplot as plt
-from alexnet import AlexNet, AlexNetSelf
+from alexnet import AlexNet, AlexNetSelf, AlexNetSelf_deep
 from functions import ourTrain
 from Datasets import ClassesDataset
 from torch.optim.lr_scheduler import StepLR
-folder_name = "../Desktop/DeepFashion/"
+folder_name = "/var/tmp/st9_data/"
 # Hyperparameters
-model_save_name = 'clas'
-model_load_name = 'first'
+model_save_name = 'ss_deep_1_clsf_1'
+model_load_name = 'ss_deep_1'
 load = True
 save = True
 lr=0.001
 in_size = 227
-tile_size = 56
-batch_size = 32
-n_epochs = 10
+tile_size = 75
+batch_size = 64
+n_epochs = 15
 num_classes = 48
 step_size = 5
 gamma = 0.3
@@ -42,7 +42,7 @@ test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True, num_
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print('Device: ' + ('gpu' if torch.cuda.is_available() else 'cpu'))
 
-model = AlexNetSelf(tile_size,in_size,selftrain=False,num_classes=num_classes)
+model = AlexNetSelf_deep(tile_size,in_size,selftrain=False,num_classes=num_classes)
 model = model.to(device)
 optimizer = torch.optim.Adam(model.parameters(),lr=lr,weight_decay=0.001)
 loss_function = nn.CrossEntropyLoss()
