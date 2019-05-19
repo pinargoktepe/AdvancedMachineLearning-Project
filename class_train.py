@@ -46,15 +46,21 @@ optimizer = torch.optim.Adam(model.parameters(),lr=lr,weight_decay=0.001)
 loss_function = nn.CrossEntropyLoss()
 scheduler = StepLR(optimizer, step_size=7, gamma=0.1)
 
-train_losses, val_losses, train_acc, val_acc = ourTrain(model, train_loader, val_loader, optimizer, loss_function, scheduler,
+train_losses, val_losses, train_accuracies_1, train_accuracies_3, train_accuracies_5, val_accuracies_1, \
+val_accuracies_3, val_accuracies_5 = ourTrain(model, train_loader, val_loader, optimizer, loss_function, scheduler,
                                                         device=device, saveWeights=save, saving_path="models/model_"+model_save_name,
                                                         loadWeights=load, loading_path='models/model_'+model_load_name,
                                                         print_every=100, n_epochs=n_epochs, folder_name=folder_name)
 
-results = np.zeros((n_epochs,4))
-results[:,0]=train_losses
+results = np.zeros((n_epochs,8))
+results[:,0]=train_losses[:]
 results[:,1]=val_losses
-results[:,2]=train_acc
-results[:,3]=val_acc
+results[:,2]=train_accuracies_1
+results[:,3]=train_accuracies_3
+results[:,4]=train_accuracies_5
+results[:,5]=val_accuracies_1
+results[:,6]=val_accuracies_3
+results[:,7]=val_accuracies_5
+
 np.savetxt(folder_name+'experiments/exp_'+str(model_load_name)+'_to_'
            +str(model_save_name)+'_lr='+str(lr)+'_nclasses='+str(num_classes)+'_nepochs='+str(n_epochs)+'.txt', results, fmt='%s')

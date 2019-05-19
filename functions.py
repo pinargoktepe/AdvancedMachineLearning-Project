@@ -26,8 +26,8 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
     #model.train()
     train_losses = []
     val_losses = []
-    train_accuracies = []
-    val_accuracies= []
+    train_accuracies_1, train_accuracies_3, train_accuracies_5 = [], [], []
+    val_accuracies_1, val_accuracies_3, val_accuracies_5 = [], [] , []
     t1=time()
     n_it = int(len(train_loader.dataset)/train_loader.batch_size)
     n_it_val = int(len(val_loader.dataset)/val_loader.batch_size)
@@ -35,7 +35,7 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
     for epoch in range(n_epochs):
         t5 = time()
         losses = []
-        n_correct = 0
+        n_correct_1, n_correct_3, n_correct_5 = 0, 0, 0
         # Training
         model.train()
         for iteration, (images, labels) in enumerate(train_loader):
@@ -58,21 +58,44 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
                 print("Iteration: " + str(iteration) + " of " + str(n_it) + "   time until end of epoch: " + strftime("%H:%M:%S", gmtime(est_ep)) + '   end of traning in ' + strftime("%H:%M:%S", gmtime(est_end)))
 
             if self_train==False:
-                n_correct += torch.sum(output.argmax(1) == labels).item()
+                n_correct_1 += torch.sum(output.argmax(1) == labels).item()
+                prediction_top_3 = np.argpartition(output.detach(), -3, axis=1)[:-3]
+                prediction_top_5 = np.argpartition(output.detach(), -5, axis=1)[:-5]
+                #print("top-3 : ", prediction_top_3)
+                #print(len(prediction_top_3))
+                #print("top-5 : ", prediction_top_5)
+                #print(len(prediction_top_5))
+                #print("labels: ", labels)
+                #print(len(labels))
+                for i in range(len(labels)):
+                    l = labels[i].item()
+                    #print("l: ", l)
+                    if l in prediction_top_3[i]:
+                        n_correct_3 += 1
+                    if l in prediction_top_5[i]:
+                        n_correct_5 += 1
 
         curr_loss = np.mean(np.array(losses))
         #writer.add_scalar('Train/Loss', curr_loss, epoch)
 
         print('Loss after epoch '+str(epoch+1)+'/'+str(n_epochs)+' is:  '+str(curr_loss))
         if self_train==False:
-            accuracy = 100.0 * n_correct / len(train_loader.dataset)
-            train_accuracies.append(accuracy)
+            accuracy_1 = 100.0 * n_correct_1 / len(train_loader.dataset)
+            train_accuracies_1.append(accuracy_1)
 
-            print('Accuracy after epoch '+str(epoch+1)+'/'+str(n_epochs)+' is:  '+str(accuracy))
+            accuracy_3 = 100.0 * n_correct_3 / len(train_loader.dataset)
+            train_accuracies_3.append(accuracy_3)
+
+            accuracy_5 = 100.0 * n_correct_5 / len(train_loader.dataset)
+            train_accuracies_5.append(accuracy_5)
+
+            print('Top-1 Accuracy after epoch '+str(epoch+1)+'/'+str(n_epochs)+' is:  '+str(accuracy_1))
+            print('Top-3 Accuracy after epoch ' + str(epoch + 1) + '/' + str(n_epochs) + ' is:  ' + str(accuracy_3))
+            print('Top-5 Accuracy after epoch ' + str(epoch + 1) + '/' + str(n_epochs) + ' is:  ' + str(accuracy_5))
             #writer.add_scalar('Train/Acc', accuracy, epoch)
         train_losses.append(curr_loss)
         losses=[]
-        n_correct = 0
+        n_correct_1, n_correct_3, n_correct_5 = 0, 0, 0
         t3 = time()
         print('Start validation')
         model.eval()
@@ -94,7 +117,23 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
                     print("Iteration: " + str(iteration) + " of " + str(n_it_val) + "    time until end of validation: " + strftime(
                         "%H:%M:%S", gmtime(est_ep)))
                 if self_train == False:
-                    n_correct += torch.sum(output.argmax(1) == labels).item()
+                    n_correct_1 += torch.sum(output.argmax(1) == labels).item()
+                    prediction_top_3 = np.argpartition(output.detach(), -3, axis=1)[:-3]
+                    prediction_top_5 = np.argpartition(output.detach(), -5, axis=1)[:-5]
+                    # print("top-3 : ", prediction_top_3)
+                    # print(len(prediction_top_3))
+                    # print("top-5 : ", prediction_top_5)
+                    # print(len(prediction_top_5))
+                    # print("labels: ", labels)
+                    # print(len(labels))
+                    for i in range(len(labels)):
+                        l = labels[i].item()
+                        # print("l: ", l)
+                        if l in prediction_top_3[i]:
+                            n_correct_3 += 1
+                        if l in prediction_top_5[i]:
+                            n_correct_5 += 1
+
         curr_val_loss = np.mean(np.array(losses))
         val_losses.append(curr_val_loss)
         #writer.add_scalar('Val/Loss', curr_val_loss, epoch)
@@ -106,9 +145,17 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
 
         print('Loss at validation ' + str(epoch + 1) + ' is:  ' + str(curr_loss))
         if self_train==False:
-            accuracy = 100.0 * n_correct / len(val_loader.dataset)
-            val_accuracies.append(accuracy)
-            print('Accuracy after validation:  ' + str(accuracy))
+            accuracy_1 = 100.0 * n_correct_1 / len(val_loader.dataset)
+            val_accuracies_1.append(accuracy_1)
+
+            accuracy_3 = 100.0 * n_correct_3 / len(val_loader.dataset)
+            val_accuracies_3.append(accuracy_3)
+
+            accuracy_5 = 100.0 * n_correct_5 / len(val_loader.dataset)
+            val_accuracies_5.append(accuracy_5)
+            print('Top-1 Accuracy after validation:  ' + str(accuracy_1))
+            print('Top-3 Accuracy after validation:  ' + str(accuracy_3))
+            print('Top-5  Accuracy after validation:  ' + str(accuracy_5))
             #writer.add_scalar('Val/Acc', accuracy, epoch)
         scheduler.step()
 
@@ -117,7 +164,7 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
         torch.save(model.state_dict(), saving_path+'.pth')
 
     #writer.close()
-    return train_losses, val_losses, train_accuracies, val_accuracies
+    return train_losses, val_losses, train_accuracies_1, train_accuracies_3, train_accuracies_5, val_accuracies_1, val_accuracies_3, val_accuracies_5
 
 
 '''
