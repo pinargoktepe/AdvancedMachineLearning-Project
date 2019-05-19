@@ -92,7 +92,7 @@ class AlexNetSelf(nn.Module):
 class AlexNetSelf_deep(nn.Module):
 
     def __init__(self, tile_size,in_size,selftrain, num_classes):
-        super(AlexNetSelf, self).__init__()
+        super(AlexNetSelf_deep, self).__init__()
         self.features = nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
             nn.ReLU(inplace=True),
