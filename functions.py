@@ -65,8 +65,8 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
 
             if self_train==False:
                 n_correct_1 += torch.sum(output.argmax(1) == labels).item()
-                top3_probs, top3_labs = torch.topk(output, 2)
-                top5_probs, top5_labs = torch.topk(output, 2)
+                top3_probs, top3_labs = torch.topk(output, 3)
+                top5_probs, top5_labs = torch.topk(output, 5)
 
                 for i in range(len(labels)):
                     l = labels[i].item()
@@ -87,8 +87,8 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
                     final_prediction_train[first_ind:last_ind, 0] = idx.tolist()
                     final_prediction_train[first_ind:last_ind, 1] = labels.tolist()
                     final_prediction_train[first_ind:last_ind, 2] = output.argmax(1).tolist()
-
-        np.savetxt(saving_path + '_final_train_res.txt', final_prediction_train, fmt='%s')
+        if self_train == False:
+            np.savetxt(saving_path + '_final_train_res.txt', final_prediction_train, fmt='%s')
         curr_loss = np.mean(np.array(losses))
         #writer.add_scalar('Train/Loss', curr_loss, epoch)
 
@@ -133,8 +133,8 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
                         "%H:%M:%S", gmtime(est_ep)))
                 if self_train == False:
                     n_correct_1 += torch.sum(output.argmax(1) == labels).item()
-                    top3_probs, top3_labs = torch.topk(output, 2)
-                    top5_probs, top5_labs = torch.topk(output, 2)
+                    top3_probs, top3_labs = torch.topk(output, 3)
+                    top5_probs, top5_labs = torch.topk(output, 5)
 
                     for i in range(len(labels)):
                         l = labels[i].item()
@@ -154,10 +154,11 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
                             last_ind = iteration * val_loader.batch_size + val_loader.batch_size
 
                         final_prediction_val[first_ind:last_ind, 0] = idx.tolist()
-                        final_prediction_val[first_ind:last_ind, 0] = labels.tolist()
-                        final_prediction_val[first_ind:last_ind, 1] = output.argmax(1).tolist()
+                        final_prediction_val[first_ind:last_ind, 1] = labels.tolist()
+                        final_prediction_val[first_ind:last_ind, 2] = output.argmax(1).tolist()
 
-            np.savetxt(saving_path+'_final_val_res.txt', final_prediction_val, fmt='%s')
+            if self_train == False:
+                np.savetxt(saving_path+'_final_val_res.txt', final_prediction_val, fmt='%s')
 
         curr_val_loss = np.mean(np.array(losses))
         val_losses.append(curr_val_loss)
@@ -192,15 +193,18 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
     return train_losses, val_losses, train_accuracies_1, train_accuracies_3, train_accuracies_5, val_accuracies_1, val_accuracies_3, val_accuracies_5
 
 
-'''
-def ourTest(model, test_loader, self_train, device=torch.device('cpu'), print_every=100):
-    accuracies=[]
+def classificationTest(model, test_loader, device=torch.device('cpu'), print_every=100, saving_path='', folder_name=''):
+    saving_path = folder_name+saving_path
+    test_accuracies_1, test_accuracies_3, test_accuracies_5 = [], [], []
+    n_correct_1, n_correct_3, n_correct_5 = 0, 0, 0
+    final_prediction_test = np.zeros((len(test_loader.dataset),3))
     t1=time()
     n_it = int(len(test_loader.dataset)/test_loader.batch_size)
     with torch.no_grad():
-        for iteration, (images, labels) in enumerate(test_loader):
+        for iteration, (images, labels, idx) in enumerate(test_loader):
             images = images.to(device)
             labels = labels.to(device)
+            idx = idx.to(device)
             output = model(images)
             if iteration % print_every == 0:
                 t2 = time()
@@ -208,15 +212,45 @@ def ourTest(model, test_loader, self_train, device=torch.device('cpu'), print_ev
                 print("Iteration: " + str(iteration) + " of " + str(
                     n_it) + "    time until end of test: " + strftime(
                     "%H:%M:%S", gmtime(est_ep)))
-            if self_train == False:
-                n_correct += torch.sum(output.argmax(1) == labels).item()
+
+            #calculate top-1, top-3 and top-5 accuracies
+            n_correct_1 += torch.sum(output.argmax(1) == labels).item()
+            top3_probs, top3_labs = torch.topk(output, 3)
+            top5_probs, top5_labs = torch.topk(output, 5)
+
+            for i in range(len(labels)):
+                l = labels[i].item()
+                # print("l: ", l)
+                if l in top3_labs[i]:
+                    n_correct_3 += 1
+                if l in top5_labs[i]:
+                    n_correct_5 += 1
+
+            accuracy_1 = 100.0 * n_correct_1 / len(test_loader.dataset)
+            test_accuracies_1.append(accuracy_1)
+            accuracy_3 = 100.0 * n_correct_3 / len(test_loader.dataset)
+            test_accuracies_3.append(accuracy_3)
+            accuracy_5 = 100.0 * n_correct_5 / len(test_loader.dataset)
+            test_accuracies_5.append(accuracy_5)
+
+            print('Top-1 Accuracy:  ' + str(accuracy_1))
+            print('Top-3 Accuracy:  ' + str(accuracy_3))
+            print('Top-5 Accuracy:  ' + str(accuracy_5))
+
+            first_ind = iteration * test_loader.batch_size
+            if len(test_loader.dataset) - first_ind < test_loader.batch_size:
+                last_ind = len(test_loader.dataset)
             else:
-    print('Loss at validation ' + str(epoch + 1) + ' is:  ' + str(curr_loss))
-    if self_train == False:
-        accuracy = 100.0 * n_correct / len(val_loader.dataset)
-        val_accuracies.append(accuracy)
-        print('Accuracy after validation:  ' + str(accuracy))
-'''
+                last_ind = iteration * test_loader.batch_size + test_loader.batch_size
+
+            final_prediction_test[first_ind:last_ind, 0] = idx.tolist()
+            final_prediction_test[first_ind:last_ind, 1] = labels.tolist()
+            final_prediction_test[first_ind:last_ind, 2] = output.argmax(1).tolist()
+
+        np.savetxt(saving_path + '_final_test_res.txt', final_prediction_test, fmt='%s')
+
+    return test_accuracies_1, test_accuracies_3, test_accuracies_5
+
 
 def plotCompare(image_idx, dataset):
     images=[]

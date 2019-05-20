@@ -15,9 +15,12 @@ load = False
 save = True
 lr=0.005
 in_size = 227
+tile_size = 75
 batch_size = 32
 n_epochs = 10
 num_classes = 48
+step_size = 5
+gamma = 0.3
 folder_name = "/var/tmp/st9_data/"
 #Dataset for target task
 train_dataset = ClassesDataset(folder_name+"dataset2/train/",in_size=in_size, num_classes=num_classes)
