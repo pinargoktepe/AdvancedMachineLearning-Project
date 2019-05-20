@@ -193,8 +193,8 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
     return train_losses, val_losses, train_accuracies_1, train_accuracies_3, train_accuracies_5, val_accuracies_1, val_accuracies_3, val_accuracies_5
 
 
-def classificationTest(model, test_loader, device=torch.device('cpu'), print_every=100, saving_path='', folder_name=''):
-    saving_path = folder_name+saving_path
+def classificationTest(model, test_loader, device=torch.device('cpu'), print_every=100, loading_path='', folder_name=''):
+    loading_path = folder_name+loading_path
     test_accuracies_1, test_accuracies_3, test_accuracies_5 = [], [], []
     n_correct_1, n_correct_3, n_correct_5 = 0, 0, 0
     final_prediction_test = np.zeros((len(test_loader.dataset),3))
@@ -235,7 +235,7 @@ def classificationTest(model, test_loader, device=torch.device('cpu'), print_eve
             final_prediction_test[first_ind:last_ind, 1] = labels.tolist()
             final_prediction_test[first_ind:last_ind, 2] = output.argmax(1).tolist()
 
-        np.savetxt(saving_path + '_final_test_res.txt', final_prediction_test, fmt='%s')
+        np.savetxt(loading_path + '_final_test_res.txt', final_prediction_test, fmt='%s')
 
         accuracy_1 = 100.0 * n_correct_1 / len(test_loader.dataset)
         test_accuracies_1.append(accuracy_1)
