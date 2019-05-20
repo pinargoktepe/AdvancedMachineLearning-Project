@@ -1,0 +1,4 @@
+\beamer@sectionintoc {1}{DeepFashion dataset}{3}{0}{1}
+\beamer@sectionintoc {2}{Our solution}{5}{0}{2}
+\beamer@sectionintoc {3}{Results}{7}{0}{3}
+\beamer@sectionintoc {4}{Conclusions}{8}{0}{4}
