@@ -233,9 +233,9 @@ def classificationTest(model, test_loader, device=torch.device('cpu'), print_eve
             accuracy_5 = 100.0 * n_correct_5 / len(test_loader.dataset)
             test_accuracies_5.append(accuracy_5)
 
-            print('Top-1 Accuracy:  ' + str(accuracy_1))
-            print('Top-3 Accuracy:  ' + str(accuracy_3))
-            print('Top-5 Accuracy:  ' + str(accuracy_5))
+            #print('Top-1 Accuracy:  ' + str(accuracy_1))
+            #print('Top-3 Accuracy:  ' + str(accuracy_3))
+            #print('Top-5 Accuracy:  ' + str(accuracy_5))
 
             first_ind = iteration * test_loader.batch_size
             if len(test_loader.dataset) - first_ind < test_loader.batch_size:
