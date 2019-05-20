@@ -213,7 +213,6 @@ def classificationTest(model, test_loader, device=torch.device('cpu'), print_eve
                     n_it) + "    time until end of test: " + strftime(
                     "%H:%M:%S", gmtime(est_ep)))
 
-            #calculate top-1, top-3 and top-5 accuracies
             n_correct_1 += torch.sum(output.argmax(1) == labels).item()
             top3_probs, top3_labs = torch.topk(output, 3)
             top5_probs, top5_labs = torch.topk(output, 5)
@@ -226,17 +225,6 @@ def classificationTest(model, test_loader, device=torch.device('cpu'), print_eve
                 if l in top5_labs[i]:
                     n_correct_5 += 1
 
-            accuracy_1 = 100.0 * n_correct_1 / len(test_loader.dataset)
-            test_accuracies_1.append(accuracy_1)
-            accuracy_3 = 100.0 * n_correct_3 / len(test_loader.dataset)
-            test_accuracies_3.append(accuracy_3)
-            accuracy_5 = 100.0 * n_correct_5 / len(test_loader.dataset)
-            test_accuracies_5.append(accuracy_5)
-
-            #print('Top-1 Accuracy:  ' + str(accuracy_1))
-            #print('Top-3 Accuracy:  ' + str(accuracy_3))
-            #print('Top-5 Accuracy:  ' + str(accuracy_5))
-
             first_ind = iteration * test_loader.batch_size
             if len(test_loader.dataset) - first_ind < test_loader.batch_size:
                 last_ind = len(test_loader.dataset)
@@ -248,6 +236,17 @@ def classificationTest(model, test_loader, device=torch.device('cpu'), print_eve
             final_prediction_test[first_ind:last_ind, 2] = output.argmax(1).tolist()
 
         np.savetxt(saving_path + '_final_test_res.txt', final_prediction_test, fmt='%s')
+
+        accuracy_1 = 100.0 * n_correct_1 / len(test_loader.dataset)
+        test_accuracies_1.append(accuracy_1)
+        accuracy_3 = 100.0 * n_correct_3 / len(test_loader.dataset)
+        test_accuracies_3.append(accuracy_3)
+        accuracy_5 = 100.0 * n_correct_5 / len(test_loader.dataset)
+        test_accuracies_5.append(accuracy_5)
+
+        print('Top-1 Accuracy:  ' + str(accuracy_1))
+        print('Top-3 Accuracy:  ' + str(accuracy_3))
+        print('Top-5 Accuracy:  ' + str(accuracy_5))
 
     return test_accuracies_1, test_accuracies_3, test_accuracies_5
 
