@@ -41,7 +41,7 @@ optimizer = torch.optim.Adam(model.parameters(),lr=lr,weight_decay=0.001)
 loss_function = nn.CrossEntropyLoss()
 scheduler = StepLR(optimizer, step_size=step_size, gamma=gamma)
 
-test_accuracies_1, test_accuracies_3, test_accuracies_5 = classificationTest(model, test_loader, device=torch.device('cpu'), print_every=100, saving_path='', folder_name='')
+test_accuracies_1, test_accuracies_3, test_accuracies_5 = classificationTest(model, test_loader, device=device, print_every=100, saving_path='', folder_name='')
 
 results = np.zeros((1,3))
 results[:,0]=test_accuracies_1
