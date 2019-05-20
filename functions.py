@@ -195,11 +195,16 @@ def ourTrain(model, train_loader,val_loader, optimizer, loss_fn, scheduler, save
 
 def classificationTest(model, test_loader, device=torch.device('cpu'), print_every=100, loading_path='', folder_name=''):
     loading_path = folder_name+loading_path
+    model.load_state_dict(torch.load(loading_path+'.pth'), strict=False)
+    model.to(device)
+    
+    print("model weights are loaded from ", device)
     test_accuracies_1, test_accuracies_3, test_accuracies_5 = [], [], []
     n_correct_1, n_correct_3, n_correct_5 = 0, 0, 0
     final_prediction_test = np.zeros((len(test_loader.dataset),3))
     t1=time()
     n_it = int(len(test_loader.dataset)/test_loader.batch_size)
+    model.eval()
     with torch.no_grad():
         for iteration, (images, labels, idx) in enumerate(test_loader):
             images = images.to(device)
